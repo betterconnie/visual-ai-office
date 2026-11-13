@@ -105,7 +105,7 @@ A character that hasn't reported for more than 10 minutes counts as offline (exc
 
 Send `{}` and Fox walks to the mailbox to collect it.
 
-### `POST /api`: outside services (pneumatic tubes)
+### `POST /api`: outside services (not shown on screen right now; kept for later)
 
 ```
 curl -X POST http://127.0.0.1:8765/api \

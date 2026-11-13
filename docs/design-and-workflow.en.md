@@ -68,7 +68,7 @@ The core idea fits in one sentence: **everything an AI does must map to a human-
 - Name plates are real objects drawn into the picture (door signs, desk plates), left blank; the program fills in the text.
 - There is a shared lounge: sofa, TV, coffee table, coffee bar, massage chair.
 - AIs that can't go online or touch your files are kept in a glass sandbox with their own desk, chair and rest corner.
-- Outside services (voice, video, drawing) are shown as pneumatic tubes leading to small huts outside.
+- Project progress is shown on the rocket launch site at the bottom right: three pads hold the most recently active projects, with a fuel bar when progress has been reported and "Fueling" when it has not.
 
 **Settle these before drawing the background, or you'll never finish patching (this is where the most time went into redoing):**
 - Every workstation: the desk is between the character and the viewer, and the character sits facing the viewer (so the face is visible); the monitor is at the side of the desk and doesn't block the face; the keyboard is right in front of the chair, within reach.

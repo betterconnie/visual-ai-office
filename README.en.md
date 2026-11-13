@@ -35,6 +35,7 @@ Below the live view there is also:
 
 - **Office Feed**: nine small shots, each one something that just happened. Click one to see it enlarged and re-enacted.
 - **Office Gossip**: a banner above the scene that turns the most dramatic thing happening right now into one line.
+- **Rocket launch site**: three pads at the bottom right hold the most recently active projects; report steps done/total with `/project` to fill the fuel bar, otherwise it says "Fueling".
 - **Projects**: who is on each project, in which role, how long since it moved and how far along, with marks for going in circles, slacking and vanishing.
 - **Today's MVP Race**: ranking by how often each AI appeared that day; first place gets a certificate of praise.
 - The ⚙︎ button lets you pick an animal for each AI and hide the ones you don't use.
