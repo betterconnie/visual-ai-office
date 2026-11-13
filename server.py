@@ -400,6 +400,11 @@ def projects(now):
     if DEMO:  # 示範模式不顯示專案名，照顯示順序叫專案 A、B、C（拿來錄影、截圖也不會露出任何真的名字）
         for i, p in enumerate(out):
             p["name"] = ("Project " if LANG == "en" else "專案 ") + chr(65 + i)
+    for name in WALL.get("added", []):  # 手動種的盆栽（專案）：還沒有任何紀錄也顯示
+        if not any(p["name"] == name for p in out):
+            done, total = PROGRESS.get(name, (0, 0))
+            out.append({"name": name, "active": False, "last": 0, "added": True, "done": done, "total": total, "src": "",
+                        "people": [{"id": "boss", "role": ROLE["boss"][LANG == "en"], "n": 0, "did": {}}]})
     return out
 
 
@@ -418,7 +423,7 @@ def _load(f, default):
 
 
 PADS = _load(LAUNCH_FILE, {"pads": [], "rules": {}})   # {"pads": [三個專案名], "rules": {專案名: 進度怎麼算}}
-WALL = _load(WALL_FILE, {"order": [], "hidden": []})   # 專案牆的順序和隱藏
+WALL = _load(WALL_FILE, {"order": [], "hidden": [], "added": []})   # 專案牆的順序和隱藏
 PARTY = {"name": "", "t": 0}
 _ck = {}
 
@@ -554,7 +559,7 @@ def do_rule(d):
 def do_wall(d):
     """專案牆：{"order": [卡片名], "hidden": [卡片名]}"""
     clean = lambda xs: list(dict.fromkeys(str(x)[:40] for x in xs or []))[:200]
-    for k in ("order", "hidden"):
+    for k in ("order", "hidden", "added"):  # added＝手動種的專案
         if k in d:
             WALL[k] = clean(d[k])
     _save(WALL_FILE, WALL)
