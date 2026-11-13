@@ -6,6 +6,8 @@
 
 **English.** Visual Office is a single web page that shows your AI assistants as small animals working in a cozy pixel-art office, with you as the boss — and a light project manager: every project is a potted plant that grows as stages get ticked off. Each thing an AI does has a visible, human-like action: it collapses when its quota runs out, turns into a ghost when it ignores messages, and paces outside a door when it can't reach someone. A tiny Python server (standard library only) collects status over HTTP and the page redraws every few seconds. It ships with a demo mode, so you can see a whole day play out before connecting anything.
 
+👉 **線上試玩（不用安裝）**：<https://betterconnie.github.io/visual-ai-office/>（示範資料，按鈕不會存檔）
+
 ## 專案管理
 
 不用另外開專案管理軟體，AI 團隊的進度就在辦公室裡：

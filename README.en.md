@@ -4,6 +4,8 @@
 
 A small pixel-art office in a web page that doubles as a light, friendly **project manager**: each of your AIs is a little animal, you are the boss, and one glance tells you who is busy, who is stuck, how far each project has come and what comes next.
 
+👉 **Try it online (no install)**: <https://betterconnie.github.io/visual-ai-office/?lang=en> (demo data; buttons don’t save)
+
 ## Project management
 
 Your AI team's progress lives right in the office, no separate tool needed:
