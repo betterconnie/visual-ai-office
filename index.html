@@ -153,7 +153,7 @@
 <div id="setupbox" hidden></div>
 <div id="gossip" role="status">📰 <b id="gossip-h"></b>　<span id="gossip-t"></span></div>
 <div id="room"><svg id="office" viewBox="0 0 1376 768" role="img" aria-label="辦公室即時畫面">
-  <image href="art/office_bg_C6.jpg" width="1376" height="768"/>
+  <image href="art/office_bg_N1.jpg" width="1376" height="768"/>
   <clipPath id="glassclip"><polygon points="696,440 849,361 1007,440 1007,560 849,642 696,556"/></clipPath>
   <image href="art/glass_room_C1.jpg" x="676" y="350" width="340" height="304" clip-path="url(#glassclip)"/>  <!-- 玻璃間內部重畫：桌子轉成人坐後面、面向觀眾 -->
   <!-- 藍鳥 的椅子：底圖沒畫，單獨請 紫貓 畫一把放在他那格 --><g id="bg"></g><g id="world"></g>
@@ -802,7 +802,7 @@ const agoText = s => t('ago', s);
 const mug = (id, pose, cls = '') => { const o = id === 'boss' ? SPR.boss?.[7] : pose === 'sit' ? (SIT[id]?.[0] || SPR[id]?.[0]) : SPR[id]?.[pose]; return o ? `<img class="${cls}" src="${o.url}" alt="">` : ''; };
 let hlSig = '';
 // 回放鏡頭：依紀錄把那一幕重新擺出來（不是錄影）。回傳鏡頭框 box、起點 from、終點 to、畫面 svg(進度 0~1)
-const BGIMG = `<image href="art/office_bg_C6.jpg" width="1376" height="768"/><image href="art/glass_room_C1.jpg" x="676" y="350" width="340" height="304" clip-path="url(#glassclip)"/>`;
+const BGIMG = `<image href="art/office_bg_N1.jpg" width="1376" height="768"/><image href="art/glass_room_C1.jpg" x="676" y="350" width="340" height="304" clip-path="url(#glassclip)"/>`;
 const GLASSFACE = `<polygon points="696,440 849,516 849,642 696,556" fill="#d8f1ff" opacity=".3"/><polygon points="849,516 1007,440 1007,560 849,642" fill="#d8f1ff" opacity=".24"/><path d="M696,440 L849,516 L1007,440 M849,516 L849,642 M696,440 L696,556 L849,642 L1007,560 L1007,440" stroke="#a9dbf0" stroke-width="3.5" fill="none"/>`;
 const tile = (o, x0, y0, x1, y1, cls) => `<g class="${cls}"><svg x="${o.x + o.w * x0}" y="${o.y + o.h * y0}" width="${o.w * (x1 - x0)}" height="${o.h * (y1 - y0)}" viewBox="${o.w * x0} ${o.h * y0} ${o.w * (x1 - x0)} ${o.h * (y1 - y0)}"><image href="${o.url}" width="${o.w}" height="${o.h}" style="image-rendering:pixelated"/></svg></g>`;
 // 坐著的人腰以下要被桌子擋住，不能像被桌面截斷。BACK＝每張桌子靠椅子那一側的桌緣（底圖座標）：桌緣以上＋伸到桌面的手臂那半邊照畫，左下角的腰被桌子擋住
@@ -1069,7 +1069,7 @@ $('world').insertAdjacentHTML('beforebegin', '<defs><mask id="winmask" maskUnits
 $('world').insertAdjacentHTML('beforebegin', '<g id="rockets" style="pointer-events:none"></g>');
 $('world').insertAdjacentHTML('beforebegin', '<g id="seats">' + Object.keys(SEAT).map(id => seatImg(id, true)).join('') + ['open', 'think'].map(k => `<image id="win-${k}" style="display:none" href="art/win_${k}.jpg" x="30" y="70" width="231" height="308" mask="url(#winmask)"/>`).join('') + '</g>');
 $('world').insertAdjacentHTML('afterend', '<g id="seats2">' + Object.keys(SEAT).map(id => seatImg(id, true, true)).join('') + '</g>');
-$('world').insertAdjacentHTML('afterbegin', OCC.map((o, k) => `<image id="o-${k}" href="art/office_bg_C6.jpg" width="1376" height="768" clip-path="url(#occ${k})" style="pointer-events:none"/>`).join('')
+$('world').insertAdjacentHTML('afterbegin', OCC.map((o, k) => `<image id="o-${k}" href="art/office_bg_N1.jpg" width="1376" height="768" clip-path="url(#occ${k})" style="pointer-events:none"/>`).join('')
   + DOORS.map((d, k) => `<g id="d-${k}" style="pointer-events:none"></g>`).join('')
   // 玻璃間朝觀眾的兩面玻璃：畫在 螃蟹 上面，他才是「關在玻璃裡」；站在玻璃外面的人則畫在玻璃前面
   + '<g id="g-face" style="pointer-events:none"><polygon points="696,440 849,516 849,642 696,556" fill="#d8f1ff" opacity=".3"/><polygon points="849,516 1007,440 1007,560 849,642" fill="#d8f1ff" opacity=".24"/>'
@@ -1078,7 +1078,7 @@ $('world').insertAdjacentHTML('afterbegin', OCC.map((o, k) => `<image id="o-${k}
 // 家具的遮蔽圖照實際形狀摳：範圍內不是地板顏色的像素才算家具。
 // 只用多邊形裁會把家具上方的空氣也算進去，角色走到後面會被一條直線切掉（設計者：我該被物品擋到，不是被裁切）
 (async () => {
-  const bmp = await createImageBitmap(await (await fetch('art/office_bg_C6.jpg')).blob());
+  const bmp = await createImageBitmap(await (await fetch('art/office_bg_N1.jpg')).blob());
   const c = Object.assign(document.createElement('canvas'), {width: bmp.width, height: bmp.height}), x = c.getContext('2d', {willReadFrequently: true});
   x.drawImage(bmp, 0, 0);
   const floorLike = (r, g, b) => (r >= 176 && b <= 52 && g >= 78 && g <= 142) || (r >= 235 && g >= 150 && b >= 60 && b <= 120 && r - b > 120);  // 木地板的橘色與亮面反光
