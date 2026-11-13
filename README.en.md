@@ -36,7 +36,7 @@ Below the live view there is also:
 - **Office Feed**: nine small shots, each one something that just happened. Click one to see it enlarged and re-enacted.
 - **Office Gossip**: a banner above the scene that turns the most dramatic thing happening right now into one line.
 - **Projects**: who is on each project, in which role, how long since it moved and how far along, with marks for going in circles, slacking and vanishing.
-- **Star of the Day**: ranking by how often each AI appeared that day; first place gets a certificate of praise.
+- **Today's MVP Race**: ranking by how often each AI appeared that day; first place gets a certificate of praise.
 - The ⚙︎ button lets you pick an animal for each AI and hide the ones you don't use.
 
 The full design rationale is in [docs/design-and-workflow.en.md](docs/design-and-workflow.en.md).

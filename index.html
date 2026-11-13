@@ -36,6 +36,7 @@
   .poster .champ{display:flex;gap:12px;align-items:center;border-bottom:2px dashed #d9b46a;padding-bottom:10px;margin-bottom:8px}
   .poster .champ img{height:86px;image-rendering:pixelated} .poster .champ b{font-size:20px} .poster .champ p{margin:4px 0 0;font-size:14px;line-height:1.5}
   .poster .mm{height:36px;width:36px;border-radius:8px;border:2px solid #b8862b;vertical-align:middle;margin-right:5px}
+  .poster .lead{display:inline-block;font-size:12px;font-weight:700;background:#c0392b;color:#fff;border-radius:8px;padding:0 8px;margin-bottom:2px}
   .poster ol{margin:0;padding-left:22px;font-size:14px;line-height:1.7} .poster .last{font-size:12px;opacity:.75;margin:8px 0 0}
   @media (max-width:560px){#tiles{gap:6px}.tile{padding:6px 4px;min-height:118px}.tile .txt{font-size:11.5px}.tile .mini img{height:44px}.tile .mini{height:50px}}
   svg{display:block;width:100%;height:auto;max-height:calc(100vh - 60px)}
@@ -137,6 +138,7 @@
   .pcard .pm{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:13px;line-height:1.3}
   .pcard .pm img{width:30px;height:30px;border-radius:7px;border:2px solid #b8862b;flex:none} .pcard .pm small{opacity:.75;font-size:11px}
   .pcard .mk{display:inline-block;font-size:11px;font-weight:700;color:#fff;border-radius:7px;padding:0 6px;margin-top:2px;white-space:nowrap}
+  .pcard .st5{color:#e0a100;font-size:12px;letter-spacing:-1px} .pcard .st5 i{font-style:normal;color:#d9cfbf}
   .pcard .rl{font-size:11px;font-weight:700;background:#ffd98a;border-radius:7px;padding:0 6px;white-space:nowrap}
   #gossip{margin:6px 12px 8px;padding:8px 14px;background:#fff8ec;color:#4a2f1b;border:3px solid #5b4636;border-radius:12px;font-size:15px;line-height:1.5}
   #gossip b{background:#c0392b;color:#fff;border-radius:6px;padding:1px 8px;font-size:13px}
@@ -190,8 +192,8 @@ const T = {  // 畫面上的字：zh 與 en 兩份，用 t('key', ...) 取
     ago: s => s < 60 ? '剛剛' : s < 3600 ? Math.floor(s / 60) + ' 分鐘前' : s < 86400 ? Math.floor(s / 3600) + ' 小時前' : Math.floor(s / 86400) + ' 天前',
     sep: '｜', times: n => `（來回 ${n} 則）`, reenact: '　※ 依紀錄重演，不是錄影', noEvents: '還沒有事件', tileTitle: '點一下看這一幕',
     w_task: '交代或接到工作', w_report: '回報', w_talk: '討論', w_chat: '回覆你', w_done: '完成工作', count: (l, n) => `${l} ${n} 次`, list: '、',
-    star: '🏆 每日之星 ', starSub: '', champ: (n, w) => `今天上榜 <b>${n}</b> 次：${w}。`, tasks: x => '參與的任務：' + x + '。',
-    praise: '工作表現優秀，特此表揚。', row: (name, role, n, w) => `<b>${name}</b>（${role}）上榜 ${n} 次：${w}`, noStar: '今天還沒有人上榜，等大家開始互動就會出現。', lastStar: '昨日之星：',
+    star: '🏆 今日 MVP 爭奪戰 ', starSub: '即時排名，半夜結算', lead: '👑 暫居第一', champ: (n, w) => `今天上榜 <b>${n}</b> 次：${w}。`, tasks: x => '參與的任務：' + x + '。',
+    praise: '工作表現優秀，特此表揚。', row: (name, role, n, w) => `<b>${name}</b>（${role}）上榜 ${n} 次：${w}`, noStar: '今天還沒有人上榜，等大家開始互動就會出現。', lastStar: '昨日 MVP：',
     status: '狀態：', doing: '在做：', lasted: '已持續：', hrs: ' 小時 ', mins: ' 分', quota: '額度：', noData: '沒有資料', left: n => '剩 ' + n + '%', readAt: x => '（' + x + ' 讀到）',
     sessions: n => `開著 ${n} 個對話`, waitYou: '等你處理', waiting: '等待中', queue: (l, n, note) => `${l}：${n} 件${note ? '（' + note + '）' : ''}`, asked: '停下來等你回答的對話：',
     demoAlert: '示範模式不能傳話，請先按「回到即時」', sendFail: '沒送出去：',
@@ -211,8 +213,8 @@ const T = {  // 畫面上的字：zh 與 en 兩份，用 t('key', ...) 取
     ago: s => s < 60 ? 'just now' : s < 3600 ? Math.floor(s / 60) + ' min ago' : s < 86400 ? Math.floor(s / 3600) + ' h ago' : Math.floor(s / 86400) + ' d ago',
     sep: ' | ', times: n => ` (${n} messages)`, reenact: '  * Re-enacted from the log, not a recording', noEvents: 'No events yet', tileTitle: 'Click to replay this scene',
     w_task: 'tasks', w_report: 'reports', w_talk: 'discussions', w_chat: 'replies to you', w_done: 'finished', count: (l, n) => `${l}: ${n}`, list: ', ',
-    star: '🏆 Star of the Day ', starSub: '', champ: (n, w) => `On the board <b>${n}</b> times today (${w}).`, tasks: x => ' Worked on: ' + x + '.',
-    praise: 'Outstanding work. Well done!', row: (name, role, n, w) => `<b>${name}</b> (${role}): ${n} times (${w})`, noStar: 'Nobody on the board yet today. It fills up once everyone starts working together.', lastStar: "Yesterday's star: ",
+    star: '🏆 Today\'s MVP Race ', starSub: 'Live ranking, settled at midnight', lead: '👑 Leading', champ: (n, w) => `On the board <b>${n}</b> times today (${w}).`, tasks: x => ' Worked on: ' + x + '.',
+    praise: 'Outstanding work. Well done!', row: (name, role, n, w) => `<b>${name}</b> (${role}): ${n} times (${w})`, noStar: 'Nobody on the board yet today. It fills up once everyone starts working together.', lastStar: "Yesterday's MVP: ",
     status: 'Status: ', doing: 'Doing: ', lasted: 'For: ', hrs: ' h ', mins: ' min', quota: 'Quota: ', noData: 'no data', left: n => n + '% left', readAt: x => ' (read at ' + x + ')',
     sessions: n => `${n} sessions open`, waitYou: 'Waiting for you', waiting: 'Queued', queue: (l, n, note) => `${l}: ${n}${note ? ' (' + note + ')' : ''}`, asked: 'Sessions waiting for your answer:',
     demoAlert: 'Demo mode cannot send messages. Press "Back to live" first.', sendFail: 'Not sent: ',
@@ -465,6 +467,9 @@ function projectWall(d) {
   if (sig === pwSig) return; pwSig = sig;
   const did = m => [['task_out', G('派工', 'assigned')], ['task_in', G('接工作', 'received')], ['report', G('回報', 'reports')], ['done', G('完成', 'finished')]].filter(([k]) => m.did?.[k]).map(([k, t]) => `${t} ${m.did[k]}`).join('・');
   const dur = n => (n >= 60 ? Math.floor(n / 60) + G(' 時 ', 'h ') : '') + (n % 60) + G(' 分', ' min');
+  // 貢獻度星級：這張卡裡做最多事的人五顆星，其他人照比例（至少一顆）；老闆不評星
+  const stars = (p, m) => { const top = Math.max(...p.people.filter(x => WHO[x.id]?.kind !== 'human').map(x => x.n), 1), k = WHO[m.id]?.kind === 'human' || !m.n ? 0 : Math.max(1, Math.round(m.n / top * 5));
+    return k ? `<span class="st5" title="${m.n}">${'★'.repeat(k)}<i>${'★'.repeat(5 - k)}</i></span> ` : ''; };
   const marks = (w, live) => { if (!w) return ''; const f = w.flags || [], o = [];
     if (f.includes('loop')) o.push(['#c0392b', G('🌀 鬼打牆', '🌀 Going in circles')]);
     if (f.includes('thief')) o.push(['#8e5a2b', G('🦥 薪水小偷', '🦥 Slacking')]);
@@ -474,7 +479,7 @@ function projectWall(d) {
   $('projects').innerHTML = !ps.length ? '' : `<h2>📌 ${G('專案牆', 'Projects')} <small>${G('誰在做哪個專案、各自的角色、做到哪', 'who is on what, in which role, and how far along')}</small></h2><div id="pwall">` + ps.map(p =>
     `<div class="pcard"><h3><span>${esc(p.name)}</span><span class="st${p.active ? ' on' : ''}">${p.active ? G('進行中', 'active') : p.last ? agoText(d.time - p.last) : ''}</span></h3>`
     + (p.total ? `<div class="bar"><i style="width:${Math.round(p.done / p.total * 100)}%"></i></div><div class="pg">${p.done}／${p.total}${p.src ? G('（讀自 ', ' (from ') + esc(p.src) + G('）', ')') : ''}</div>` : '')
-    + p.people.filter(m => WHO[m.id] && !WHO[m.id].hidden).map(m => `<div class="pm"><img src="art/角色/${m.id}_mug.jpg" alt=""><div><b>${esc(WHO[m.id].name)}</b> <span class="rl">${esc(m.role)}</span>${did(m) ? `<br><small>${did(m)}</small>` : ''}${marks(d.who?.[m.id], p.active)}</div></div>`).join('') + `</div>`).join('') + `</div>`;
+    + p.people.filter(m => WHO[m.id] && !WHO[m.id].hidden).map(m => `<div class="pm"><img src="art/角色/${m.id}_mug.jpg" alt=""><div><b>${esc(WHO[m.id].name)}</b> ${stars(p, m)}<span class="rl">${esc(m.role)}</span>${did(m) ? `<br><small>${did(m)}</small>` : ''}${marks(d.who?.[m.id], p.active)}</div></div>`).join('') + `</div>`).join('') + `</div>`;
 }
 function gossip(d) {
   const N = id => WHO[id].name, out = [], now = Date.now();
@@ -493,7 +498,7 @@ function gossip(d) {
     if ((w.queue || 0) >= 3) out.push([4, G(`${N(id)} 桌上堆了 ${w.queue} 件工作，${['還笑得出來嗎？', '臉上還掛著笑。', '居然還哼著歌。', '表情開始撐不住了。', '還有空喝咖啡？', '看起來一點都不慌。'][Math.floor(Date.now() / 75000) % 6]}`, `${N(id)} has ${w.queue} jobs piled up. Still smiling?`)]);
   }
   const c = d.board?.rows?.[0];
-  if (c && WHO[c.id]) out.push([2, G(`今日風雲人物是 ${N(c.id)}，已經上榜 ${c.n} 次，其他人要加油了。`, `${N(c.id)} is today's talk of the office with ${c.n} appearances. Everyone else, catch up.`)]);
+  if (c && WHO[c.id]) out.push([2, G(`今日 MVP 爭奪戰：${N(c.id)} 暫居第一，已經上榜 ${c.n} 次，其他人要加油了。`, `${N(c.id)} leads today's MVP race with ${c.n} appearances. Everyone else, catch up.`)]);
   if (!out.length) out.push([0, G('今天辦公室風平浪靜，沒有八卦。', 'All quiet in the office today. No gossip.')]);
   out.sort((a, b) => b[0] - a[0]);
   const pick = out.slice(0, 5), one = pick[Math.floor(now / 15000) % pick.length];
@@ -873,7 +878,7 @@ function highlights(d) {
   const rows = (d.board?.rows || []).filter(r => WHO[r.id]), medal = ['🥇', '🥈', '🥉'];
   const what = r => ['task', 'report', 'talk', 'chat', 'done'].filter(k => r.c[k]).map(k => t('count', t('w_' + k), r.c[k])).join(t('list'));
   $('board').innerHTML = `<div class="poster"><h2>${t('star')}<small style="font-size:12px;font-weight:400">${t('starSub')}</small></h2>` + (rows.length ? (() => { const c = rows[0], w = WHO[c.id];
-    return `<div class="champ"><img src="art/角色/${c.id}_mug.jpg" alt="" style="image-rendering:auto;border-radius:12px;border:3px solid #b8862b"><div><b>${medal[0]} ${w.name}</b>　${esc(w.role)}<p>${t('champ', c.n, what(c))}${c.tags.length ? t('tasks', c.tags.map(esc).join(t('list'))) : ''}<br>${t('praise')}</p></div></div>`
+    return `<div class="champ"><img src="art/角色/${c.id}_mug.jpg" alt="" style="image-rendering:auto;border-radius:12px;border:3px solid #b8862b"><div><span class="lead">${t('lead')}</span><br><b>${medal[0]} ${w.name}</b>　${esc(w.role)}<p>${t('champ', c.n, what(c))}${c.tags.length ? t('tasks', c.tags.map(esc).join(t('list'))) : ''}<br>${t('praise')}</p></div></div>`
       + `<ol start="2">${rows.slice(1).map((r, i) => `<li>${i < 2 ? '<img class="mm" src="art/角色/' + r.id + '_mug.jpg" alt="">' : ''}${medal[i + 1] || ''} ${t('row', WHO[r.id].name, esc(WHO[r.id].role), r.n, what(r))}</li>`).join('')}</ol>`; })()
     : `<p>${t('noStar')}</p>`)
     + (d.board?.last && WHO[d.board.last] ? `<p class="last">${t('lastStar')}${WHO[d.board.last].name}</p>` : '') + `</div>`;
