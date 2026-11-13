@@ -30,13 +30,14 @@ The core idea: everything an AI does has a human-like action. If you can't see i
 | Assigning work, reporting back | Walks over carrying a folder: "📁 To B" or "📁 Report to B" |
 | Things waiting for you | Folders on your desk, one per item |
 | A sandboxed AI needs someone | A call light outside the wall turns on and the called one walks to the door |
+| Glass room as a meeting room (pick "Meeting room" in ⚙︎) | Two AIs who talk walk into the glass room together; the door sign reads "Meeting"; one pair at a time, and the glass-room AI is hidden when unused |
 
 Below the live view there is also:
 
 - **Office Feed**: nine small shots, each one something that just happened. Click one to see it enlarged and re-enacted.
 - **Office Gossip**: a banner above the scene that turns the most dramatic thing happening right now into one line.
-- **Rocket launch site**: three pads at the bottom right hold the most recently active projects; report steps done/total with `/project` to fill the fuel bar, otherwise it says "Fueling".
-- **Projects**: who is on each project, in which role, how long since it moved and how far along, with marks for going in circles, slacking and vanishing.
+- **Rocket launch site**: always three pads at the bottom right. In ⚙︎, pick which projects sit on them and how progress counts (one rocket per round, per accepted post, one checklist, manual, automatic). When a round is done, everyone toasts in the lounge, the boss walks to the pad and lights the fuse, and the rocket lifts off and hovers over its pad until the next one launches.
+- **Projects**: who is on each project, in which role, how long since it moved and how far along, with marks for going in circles, slacking and vanishing. Reorder cards with ▲▼, hide them with ✕ (bring them back at the bottom), and "Set up progress" to get suggested stages you tick right on the card, with percent done, the next step and when each box was ticked.
 - **Today's MVP Race**: ranking by how often each AI appeared that day; first place gets a certificate of praise.
 - The ⚙︎ button lets you pick an animal for each AI and hide the ones you don't use.
 
@@ -119,6 +120,16 @@ curl -X POST http://127.0.0.1:8765/project \
   -H 'X-Office: 1' -H 'Content-Type: application/json' \
   -d '{"name": "Website redesign", "done": 3, "total": 8}'
 ```
+
+Once a card has stages (Projects → "Set up progress"), an AI can tick them too; ticking the last one starts the party and the launch:
+
+```
+curl -X POST http://127.0.0.1:8765/project \
+  -H 'X-Office: 1' -H 'Content-Type: application/json' \
+  -d '{"name": "Website redesign", "stage": "Test"}'
+```
+
+Launch-pad and wall settings live in `launchpad.json` and `wall.json` (ignored by git).
 
 **Can I choose which animal stands for which AI?**
 Yes. Click ⚙︎ in the top right, pick an animal for each AI, and hide the ones you don't need. Each animal comes with its room; the choice is saved in this device's browser only.

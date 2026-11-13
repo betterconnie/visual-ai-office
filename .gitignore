@@ -2,3 +2,5 @@ events.json
 art/角色/cut/
 __pycache__/
 .DS_Store
+launchpad.json
+wall.json

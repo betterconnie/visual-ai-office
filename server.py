@@ -291,9 +291,12 @@ def status():
         for k, w in who.items():  # 忙了多久：網頁在角色頭上顯示「⏱ 12 分」
             if w.get("busy") and k in _prev:
                 w["since"] = int(_prev[k]["since"] * 1000)
+        projs = apply_rules(projects(now))
+        pty = party(projs, now)
         events, brd = recent_shots(), board(now)
     return {"time": now, "reason_ok": True, "lang": LANG, "cast": CFG["cast"], "who": who, "talks": talks, "mail": mail,
-            "api": api, "chat": {}, "projects": projects(now), "events": events, "board": brd,
+            "api": api, "chat": {}, "projects": projs, "events": events, "board": brd,
+            "pads": PADS["pads"], "padrules": PADS["rules"], "wall": WALL, "party": pty, "launched": launched(),
             "sheets": sprite_times("_sheet.jpg"), "sits": sprite_times("_sit.png"), "walks": sprite_times("_walk.png")}
 
 
@@ -336,7 +339,11 @@ PROGRESS = {}  # 專案名 → [做完幾步, 共幾步]，由 /project 回報
 
 
 def do_project(d):
-    """回報一個專案的進度：{"name": "網站改版", "done": 3, "total": 8}。total 給 0 就是拿掉進度條。"""
+    """回報一個專案的進度：{"name": "網站改版", "done": 3, "total": 8}。total 給 0 就是拿掉進度條。
+    打勾：{"name": "網站改版", "stage": "測試", "undo": false}（這張卡要先設定好階段）。"""
+    if d.get("stage"):
+        assert stage_done(str(d["name"])[:40], str(d["stage"]).strip()[:12], bool(d.get("undo")))
+        return
     name, done, total = str(d["name"])[:40], int(d.get("done", 0)), int(d.get("total", 0))
     assert name and 0 <= done <= total <= 9999
     if total:
@@ -354,7 +361,7 @@ def projects(now):
     proj = {}
     for e in EVENTS:
         tag = e.get("tag")
-        if not tag or now - e["t"] > 7 * 86400:
+        if not tag or now - e["t"] > 7 * 86400 or e["type"] in ("party", "launch"):  # 慶功、升空不是一個專案
             continue
         p = proj.setdefault(tag, {"last": 0, "mem": {}})
         p["last"] = max(p["last"], e["t"])
@@ -396,6 +403,163 @@ def projects(now):
     return out
 
 
+# ── 發射台、專案牆、慶功 ──
+LAUNCH_FILE, WALL_FILE = HERE / "launchpad.json", HERE / "wall.json"  # 使用者的設定（不進 git）
+UNITS = ("集", "版", "週", "期", "回合", "Sprint", "篇", "件")
+UNIT_EN = {"集": "Episode", "版": "Version", "週": "Week", "期": "Term", "回合": "Round", "Sprint": "Sprint", "篇": "Post", "件": "Item"}
+EP_RE = re.compile(r"(?:ep\s*(\d+))|(?:第\s*(\d+)\s*(?:集|版|週|期|回合|篇|件))|(?:(?:sprint|episode|version|week|term|round|post|item)\s*(\d+))", re.I)
+
+
+def _load(f, default):
+    try:
+        return json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+PADS = _load(LAUNCH_FILE, {"pads": [], "rules": {}})   # {"pads": [三個專案名], "rules": {專案名: 進度怎麼算}}
+WALL = _load(WALL_FILE, {"order": [], "hidden": []})   # 專案牆的順序和隱藏
+PARTY = {"name": "", "t": 0}
+_ck = {}
+
+
+def _save(f, d):
+    f.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+
+
+def ep_tag(base, ep, r):
+    u = r.get("unit") or "集"
+    if LANG == "en":
+        return f"{base} {UNIT_EN.get(u, u)} {ep}"
+    return f"{base} Ep{ep}" if u == "集" else f"{base} Sprint {ep}" if u == "Sprint" else f"{base} 第{ep}{u}"
+
+
+def launched_eps(base):
+    out = set()
+    for e in EVENTS:
+        t = e.get("tag") or ""
+        if e["type"] == "launch" and t.startswith(base):
+            m = EP_RE.search(t[len(base):])
+            if m:
+                out.add(int(m.group(1) or m.group(2) or m.group(3)))
+    return out
+
+
+def current_ep(base, r):
+    """每一輪一支火箭：現在是第幾輪。使用者指定過就用指定的；否則是上一支升空的下一輪。"""
+    if r.get("ep"):
+        return int(r["ep"])
+    done = launched_eps(base)
+    return max(done) + 1 if done else 1
+
+
+def milestone(name, who="fox"):
+    """一集（一輪、一個清單）完成：大家到休息區乾杯，老闆走到發射台點火、火箭升空（動態牆記兩筆）。"""
+    now = time.time()
+    PARTY.update(name=name, t=now)
+    add_event(now, "party", who, None, name)
+    add_event(now + 1, "launch", "boss", None, name)
+
+
+def launched():
+    """最近升空的兩支：[最新, 上一支]。升空的火箭停在自己的平台上方，下一支升空才換掉。"""
+    names = [e.get("tag") for e in reversed(EVENTS) if e["type"] == "launch" and e.get("tag")]
+    return (names + [None, None])[:2]
+
+
+def stage_done(name, stage, undo=False):
+    """把一個階段標成做完或取消；全部做完就慶功，每一輪模式會自動換下一輪。"""
+    r = PADS["rules"].get(name)
+    if not r or r.get("mode") not in ("episode", "list") or stage not in (r.get("stages") or []):
+        return False
+    stages, got, at = r["stages"], [x for x in r.get("got") or [] if x in r["stages"]], dict(r.get("at") or {})
+    if undo:
+        got, _ = [x for x in got if x != stage], at.pop(stage, None)
+    elif stage not in got:
+        got.append(stage)
+        at[stage] = time.time()
+    r.update(got=got, at=at)
+    if r["mode"] == "list":  # 一張清單：全部勾完慶功一次，勾勾留著
+        if len(got) >= len(stages) and not r.get("fired"):
+            milestone(name)
+            r["fired"] = True
+        elif len(got) < len(stages):
+            r["fired"] = False
+    elif len(got) >= len(stages):
+        ep = current_ep(name, r)
+        milestone(ep_tag(name, ep, r))
+        r.update(got=[], at={}, ep=ep + 1)
+    _save(LAUNCH_FILE, PADS)
+    return True
+
+
+def apply_rules(projs):
+    for p in projs:
+        r = PADS["rules"].get(p["name"])
+        if not r or r.get("mode") in (None, "auto"):
+            continue
+        stages = r.get("stages") or []
+        got = [x for x in r.get("got") or [] if x in stages]
+        nxt = next((x for x in stages if x not in got), "")
+        if r["mode"] == "episode":
+            p.update(done=len(got), total=len(stages), stages=stages, got=got, at=r.get("at") or {}, stage=nxt, epmode=True,
+                     unit=r.get("unit") or "集", cur=current_ep(p["name"], r), src="")
+        elif r["mode"] == "list":
+            p.update(done=len(got), total=len(stages), stages=stages, got=got, at=r.get("at") or {}, stage=nxt, listmode=True, src="")
+        elif r["mode"] == "manual":
+            p.update(done=int(r.get("done") or 0), total=int(r.get("total") or 0), src="")
+    return projs
+
+
+def party(projs, now):
+    """回報進度（/project 的 done、total）做滿了也算完成一次。"""
+    for p in projs:
+        if p["total"] and not p.get("epmode") and not p.get("listmode") and not DEMO:  # 示範模式的進度是編的，不自動慶功
+            was, _ck[p["name"]] = _ck.get(p["name"]), (p["done"], p["total"])
+            if was and was[0] < was[1] and p["done"] >= p["total"]:
+                milestone(p["name"])
+    return dict(PARTY) if now - PARTY["t"] < 90 else None
+
+
+def _rule(r, old):
+    assert r.get("mode") in ("auto", "episode", "list", "manual")
+    stages = [str(x).strip()[:12] for x in r.get("stages") or [] if str(x).strip()][:10]
+    keep = (old or {}).get("stages") == stages
+    done, total = int(r.get("done") or 0), int(r.get("total") or 0)
+    assert 0 <= done <= total <= 9999
+    return {"mode": r["mode"], "done": done, "total": total, "stages": stages, "unit": r.get("unit") if r.get("unit") in UNITS else "集",
+            "got": [x for x in (old or {}).get("got") or [] if x in stages] if keep else [], "at": ((old or {}).get("at") or {}) if keep else {},
+            "ep": int(r.get("ep") or 0) or (old or {}).get("ep")}
+
+
+def do_launchpad(d):
+    """發射台設定：{"pads": [最多三個專案名], "rules": {專案名: {"mode", "stages", "unit", "ep", "done", "total"}}}"""
+    pads = [str(x)[:40] for x in d.get("pads") or []][:3]
+    rules = {str(k)[:40]: _rule(r, PADS["rules"].get(str(k)[:40])) for k, r in (d.get("rules") or {}).items()}
+    PADS.update(pads=pads, rules={**PADS["rules"], **rules})
+    _save(LAUNCH_FILE, PADS)
+
+
+def do_rule(d):
+    """單一專案的進度設定：{"name", "rule": {...} 或 null（拿掉）}"""
+    name = str(d["name"]).strip()[:40]
+    assert name
+    if d.get("rule") is None:
+        PADS["rules"].pop(name, None)
+    else:
+        PADS["rules"][name] = _rule(d["rule"], PADS["rules"].get(name))
+    _save(LAUNCH_FILE, PADS)
+
+
+def do_wall(d):
+    """專案牆：{"order": [卡片名], "hidden": [卡片名]}"""
+    clean = lambda xs: list(dict.fromkeys(str(x)[:40] for x in xs or []))[:200]
+    for k in ("order", "hidden"):
+        if k in d:
+            WALL[k] = clean(d[k])
+    _save(WALL_FILE, WALL)
+
+
 def do_api(d):
     for k, v in d.items():
         assert k in ("voice", "video", "paint") and isinstance(v, dict)
@@ -419,7 +583,8 @@ def do_sprites(d):
 
 
 POSTS = {"/project": (do_project, 2000), "/update": (do_update, 20000), "/talk": (do_talk, 20000), "/mail": (lambda d: MAIL.__setitem__(0, time.time()), 20000),
-         "/api": (do_api, 20000), "/sprites": (do_sprites, 8_000_000)}
+         "/api": (do_api, 20000), "/sprites": (do_sprites, 8_000_000), "/launchpad": (do_launchpad, 20000), "/rule": (do_rule, 4000), "/wall": (do_wall, 20000)}
+SETTINGS = ("/sprites", "/launchpad", "/rule", "/wall")  # 示範模式也照存的設定（不是狀態回報）
 
 
 def static_ok(path):
@@ -463,7 +628,7 @@ class H(http.server.SimpleHTTPRequestHandler):
             assert n <= limit
             d = json.loads(self.rfile.read(n) or b"{}")
             assert isinstance(d, dict)
-            if self.path == "/sprites" or not DEMO:  # 示範模式忽略狀態寫入；角色圖快取照存
+            if self.path in SETTINGS or not DEMO or d.get("stage"):  # 示範模式忽略狀態回報；設定和打勾照存，才試得出效果
                 with LOCK:
                     fn(d)
         except Exception:
@@ -487,6 +652,9 @@ def selftest():
     texts = {w.get(k, "") for s in SCENES for w in s["who"].values() for k in ("doing", "note")} | {t[3] for s in SCENES for t in s["talks"]}
     assert all(x in EN for x in texts - {""}), texts - set(EN) - {""}
     assert not static_ok("/art/../server.py") and not static_ok("/art/%2e%2e/server.py")
+    assert not static_ok("/launchpad.json") and not static_ok("/wall.json")
+    r = _rule({"mode": "episode", "stages": ["a", "b"], "unit": "版"}, None)
+    assert r["stages"] == ["a", "b"] and r["unit"] == "版" and r["got"] == []
 
 
 if __name__ == "__main__":
