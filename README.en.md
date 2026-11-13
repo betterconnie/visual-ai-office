@@ -2,15 +2,29 @@
 
 # Visual Office
 
-A small pixel-art office in a web page: each of your AIs is a little animal, you are the boss, and one glance tells you who is busy, who is free, and who is stuck.
+A small pixel-art office in a web page that doubles as a light, friendly **project manager**: each of your AIs is a little animal, you are the boss, and one glance tells you who is busy, who is stuck, how far each project has come and what comes next.
+
+## Project management
+
+Your AI team's progress lives right in the office, no separate tool needed:
+
+- 🪴 **Project garden**: every project is a potted plant that grows with progress (seed → sprout → leaves → buds → fruit). See all projects at a glance, with the lead animal standing by each pot.
+- ☑️ **Stage checklists**: give each project stages (say Plan → Build → Test → Ship). AIs tick them off as they report; you can adjust by hand. Shows percent done, the next step and when each step was finished.
+- 💡 **Suggested stages**: ready-made stages by project type (video, website, social posts, documents, courses…), one tap to apply and edit.
+- 🚀 **Milestones**: each finished round (an episode, a version, a week, a post…) sends everyone to the lounge for a toast while the boss lights the rocket; the Office Feed keeps the record.
+- 👥 **Roles and contribution**: who is on which project, in which role (coordinator, lead maker, support), with contribution stars.
+- 🚨 **Spot problems early**: going in circles, slacking, vanishing without notice and working too long get flagged.
+- ➕ **Keep it tidy**: "Plant one" to add a project, reorder, and put away the ones you don't need.
+
+![Project garden](docs/screenshot-garden.en.jpg)
 
 ## Preview
 
-![Demo](docs/demo.gif)
+![Demo](docs/demo.en.gif)
 
-![The whole office](docs/screenshot-office.jpg)
+![The whole office](docs/screenshot-office.en.jpg)
 
-![Office Feed](docs/screenshot-replay.jpg)
+![Office Feed](docs/screenshot-replay.en.jpg)
 
 ## What it acts out
 

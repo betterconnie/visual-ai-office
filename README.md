@@ -2,9 +2,23 @@
 
 # 可視化辦公室
 
-一間像素風的小辦公室網頁：你的每個 AI 是一隻小動物，你是老闆，看一眼就知道誰在忙、誰閒著、誰卡住了。
+一間像素風的小辦公室網頁，也是一套輕鬆好上手的**專案管理工具**：你的每個 AI 是一隻小動物，你是老闆。看一眼就知道誰在忙、誰卡住了，每個專案做到哪、下一步是什麼。
 
-**English.** Visual Office is a single web page that shows your AI assistants as small animals working in a cozy pixel-art office, with you as the boss. Each thing an AI does has a visible, human-like action: it collapses when its quota runs out, turns into a ghost when it ignores messages, and paces outside a door when it can't reach someone. A tiny Python server (standard library only) collects status over HTTP and the page redraws every few seconds. It ships with a demo mode, so you can see a whole day play out before connecting anything.
+**English.** Visual Office is a single web page that shows your AI assistants as small animals working in a cozy pixel-art office, with you as the boss — and a light project manager: every project is a potted plant that grows as stages get ticked off. Each thing an AI does has a visible, human-like action: it collapses when its quota runs out, turns into a ghost when it ignores messages, and paces outside a door when it can't reach someone. A tiny Python server (standard library only) collects status over HTTP and the page redraws every few seconds. It ships with a demo mode, so you can see a whole day play out before connecting anything.
+
+## 專案管理
+
+不用另外開專案管理軟體，AI 團隊的進度就在辦公室裡：
+
+- 🪴 **專案花園**：每個專案是一盆植物，進度越多長越大（種子→發芽→長葉→花苞→結果）。一眼看完所有專案做到哪，盆邊站著主要負責的小動物。
+- ☑️ **階段打勾**：替每個專案設好階段（例如 規劃→製作→測試→上線），AI 做完自己回報打勾，你也可以手動調整。會顯示完成百分比、下一步，以及每一步是什麼時候完成的。
+- 💡 **建議階段**：依專案類型（影片、網站、社群發文、文件、課程…）給建議，一鍵套用再自己改。
+- 🚀 **里程碑**：每完成一輪（一集、一版、一週、一篇發文…），大家到休息區乾杯，老闆走到發射台點火，火箭升空；動態牆留下紀錄。
+- 👥 **分工與貢獻**：誰在做哪個專案、各自的角色（派工協調、主要製作、執行支援）、貢獻星級。
+- 🚨 **提早發現問題**：鬼打牆、摸魚、沒請假就消失、連續工作太久，都會被標出來。
+- ➕ **自己整理**：「種一盆」新增專案、排前後順序、收起用不到的。
+
+![專案花園](docs/screenshot-garden.jpg)
 
 ## 畫面預覽
 
