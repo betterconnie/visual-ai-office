@@ -87,6 +87,7 @@
   .wait .tap,.walk .tap{animation:none}
   @keyframes hop{to{transform:translateY(-8px)}}
   .px .hud{transform:none!important}
+  .px.ko .hud{transform:translateY(60px)!important}
   .wl,.wr{display:none}
   .c:not(.up) .bk{display:none!important}  /* 背面走路圖只在往畫面上方走時出現 */
   .c.up:has(.bk) .wl:not(.bk),.c.up:has(.bk) .wr:not(.bk){display:none!important}
@@ -173,7 +174,7 @@
 <div id="setupbox" hidden></div>
 <div id="gossip" role="status">📰 <b id="gossip-h"></b>　<span id="gossip-t"></span></div>
 <div id="room"><svg id="office" viewBox="0 0 1376 768" role="img" aria-label="辦公室即時畫面">
-  <image href="art/office_bg_N6.jpg" width="1376" height="768"/>
+  <image href="art/office_bg_N7.jpg" width="1376" height="768"/>
   <clipPath id="signclip"><polygon points="736,461 793,489 793,512 736,485"/></clipPath><clipPath id="glassclip"><polygon points="696,440 849,361 1007,440 1007,560 849,642 696,556"/></clipPath>
   <image href="art/glass_room_C2.jpg" x="676" y="350" width="340" height="304" clip-path="url(#glassclip)"/>  <!-- 玻璃間內部重畫：桌子轉成人坐後面、面向觀眾 -->
   <g id="gdoor" style="display:none"></g>  <!-- 玻璃門開著的門板（畫在人後面）：有人走到門口就顯示 -->
@@ -695,19 +696,19 @@ function character(id, state, w, variant) {
 // seat 座位（腳的位置）、door 從座位走到走道的路、plate 圖上空白名牌的 [x, y, 斜度]、folder 文件夾疊放處
 // seat 座位（腳的位置）、door 從座位走到出口的路、node 出口接到哪個路口、plate 名牌 [x, y, 斜度]、folder 文件夾疊放處
 const SPOT = {  // 新底圖 C1（2026-11-13）：seat＝坐下時「手放的位置」（鍵盤、文件、書、繪圖板），坐姿圖是上半身、手在右下角
-  boss:  {seat:[250,244],  door:[[184,232]],           node:'CL', plate:[322,318,-23], folder:[216,250]},
+  boss:  {seat:[250,244],  door:[[200,232],[157,250]],           node:'CL', plate:[322,318,-23], folder:[216,250]},
   fox:  {seat:[570,238],  door:[[520,228],[492,264]], node:'Kh', plate:[575,302,-8]},
   bird:     {seat:[760,230],  door:[[700,226],[669,262]], node:'Kj', plate:[751,302,-8]},
   bear:  {seat:[932,224],  door:[[876,226],[846,262]], node:'Kc', plate:[927,297,-8]},
   cat:  {seat:[1117,232], door:[[1046,228],[1030,282]],          node:'Kg', plate:[1111,300,-8]},
-  raccoon:   {seat:[1257,243], door:[[1214,226],[1210,302]],          node:'Kx', plate:[1248,304,-8]},
+  raccoon:   {seat:[1257,243], door:[[1214,226],[1210,302]],          node:'Kx', plate:[1273,305,-8]},
   crab:{seat:[836,478],  door:[[830,548]],           node:null, plate:[764,488,25]},   // 關在玻璃隔間裡，不出來
 };
 const API = [];  // 原本的三間 API 小房子已換成火箭發射台
 // 發射台：永遠只有三個平台、各一支火箭。平台放哪個專案、進度怎麼算，在 ⚙︎ 設定；沒挑的放最近有動靜的
 let PARTYON = false;
 const PADS = [[1026,656], [1137,598], [1246,542]], IGN = {name: '', t: 0, party: 0};
-const PARTYSPOT = [[172,580], [150,622], [190,655], [240,672], [290,676]];  // 慶功時大家站在休息區茶几旁
+const PARTYSPOT = [[172,580], [150,622], [190,655], [240,672], [292,562]];  // 第五個原本在盆栽上，改站沙發和茶几之間（2026-11-14）  // 慶功時大家站在休息區茶几旁
 const RK = {idle: ['art/rocket_idle.png', 42, 58], fly: ['art/rocket_fly.png', 49, 92]};
 const rkImg = (k, x, y, op = 1) => { const [src, w, h] = RK[k]; return `<image href="${src}" x="${x - w / 2}" y="${y - h}" width="${w}" height="${h}" opacity="${op}"/>`; };
 const rkTag = (x, y, name, line, pct) => { const n = name.length > 15 ? name.slice(0, 14) + '…' : name, w = Math.max(64, textW(n, 11, 6.5) + 16);
@@ -742,17 +743,17 @@ const FOLDER = ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAG4AAABPCAYAAAAKq
 // 找人時站在哪敲門：[x, y, 從哪個路口走過去]
 const KNOCK = {boss: [352,270,'CB'], fox: [498,336,'Kh'], bird: [674,336,'Kj'], bear: [852,336,'Kc'], cat: [968,352,'Kg'], raccoon: [1150,362,'Kx'], crab: [772,588,'G']};  // 站在對方辦公室的出入口（矮欄左邊的缺口），不是門牌前面
 // K.O. 倒在哪：[x, y, 從座位走過去要先經過的點]
-const KO = {fox: [492,292], bird: [705,352], bear: [884,352], cat: [1040,298], raccoon: [1212,304], crab: [850,558], boss: [296,300]};
+const KO = {fox: [480,345], bird: [705,352], bear: [884,352], cat: [1030,350], raccoon: [1200,350], crab: [850,558], boss: [296,300,[[215,316]]]};
 // 最後一格是「從哪個路口走過去」，見下面的 NODE
-const REST = [[300,522,'sofa','lie','L6'], [362,552,'sofa','half','L5'], [522,402,'coffee','','Kh'], [196,612,'snack','','L7'], [150,598,'tv','','L7'], [240,655,'floor','flat','L7'], [359,646,'massage','','L6']];
+const REST = [[300,522,'sofa','lie','LG'], [362,552,'sofa','half','L5'], [515,372,'coffee','','Kh'], [196,612,'snack','','LI'], [150,598,'tv','','LI'], [240,655,'floor','flat','L7'], [359,646,'massage','','LM']];
 // 全場的走路軌道：路口＋通道。所有人只能沿著這些線走，才不會穿牆、穿隔板、穿沙發櫃子
 const NODE = {CB: [335,372], Kh: [492,340], Kj: [668,340], Q0: [700,342], Kc: [846,340], Kg: [1030,340], Kx: [1208,345],  // 各辦公室矮門前的主走廊
-  CG: [322,340], CR: [310,305], CF: [200,326], CL: [158,270],                      // 老闆的辦公室：矮門 → 地毯右側 → 桌子前面 → 桌子左邊
-  L1: [425,408], L2: [410,458], L2b: [434,494], L3: [462,548], L4: [440,606], L5: [392,588], L6: [345,590], L6b: [316,626], L7: [240,650],  // 休息區：沙發後面 → 落地燈右邊 → 沙發前 → 地毯
+  CG: [322,340], CR: [310,305], CF: [215,316], CL: [160,303],                      // 老闆的辦公室：矮門 → 地毯右側 → 桌子前面 → 桌子左邊
+  L1: [425,408], L2: [410,458], L2b: [434,494], L3: [462,548], L4: [448,598], L5: [400,588], L6: [352,586], LG: [318,571], LH: [252,537], LI: [190,566], LJ: [178,628], L7: [240,650], LM: [298,652],  // 休息區：沙發後面 → 落地燈右邊 → 沙發前 → 地毯
   R1: [1035,440], R2: [1030,560], R3: [975,630], RL: [972,684],  // 玻璃間右側 → 發射台：老闆去點火的路
-  M1: [510,560], M2: [585,582], M3: [662,604], G: [722,628]};      // 攝影器材桌和麥克風櫃之間的走道 → 玻璃門外（吧檯和玻璃間之間太窄，會穿過吧檯和玻璃，設計者 2026-11-13）
+  GB: [850,670], G: [722,628]};  // 去玻璃間門口：從發射台那側繞到玻璃間前面（原本的路線直接從相機展示桌上走過去，2026-11-14 改）
 const EDGE = {};
-for (const [a, b] of [['Kg','R1'],['R1','R2'],['R2','R3'],['R3','RL'],['CB','Kh'],['Kh','Kj'],['Kj','Q0'],['Q0','Kc'],['Kc','Kg'],['Kg','Kx'],['CB','CG'],['CG','CR'],['CR','CF'],['CF','CL'],['Kh','L1'],['L1','L2'],['L2','L2b'],['L2b','L3'],['L3','L4'],['L4','L5'],['L5','L6'],['L6','L6b'],['L6b','L7'],['L3','M1'],['M1','M2'],['M2','M3'],['M3','G']]) { (EDGE[a] ||= []).push(b); (EDGE[b] ||= []).push(a); }
+for (const [a, b] of [['Kg','R1'],['R1','R2'],['R2','R3'],['R3','RL'],['CB','Kh'],['Kh','Kj'],['Kj','Q0'],['Q0','Kc'],['Kc','Kg'],['Kg','Kx'],['CB','CG'],['CG','CR'],['CR','CF'],['CF','CL'],['Kh','L1'],['L1','L2'],['L2','L2b'],['L2b','L3'],['L3','L4'],['L4','L5'],['L5','L6'],['L6','LG'],['LG','LH'],['LH','LI'],['LI','LJ'],['LJ','L7'],['L7','LM'],['R3','GB'],['GB','G']]) { (EDGE[a] ||= []).push(b); (EDGE[b] ||= []).push(a); }
 function route(a, b) {  // 兩個路口之間怎麼走（路口很少，直接一層一層找）
   const prev = {[a]: null}, q = [a];
   while (q.length) { const n = q.shift(); if (n === b) break; for (const m of EDGE[n]) if (!(m in prev)) { prev[m] = n; q.push(m); } }
@@ -763,9 +764,10 @@ const CLAW = [[932,518,'sofa','half'], [838,566,'floor','flat'], [866,578,'snack
 
 function scene(on, total, time, api, extras) {
   const plateText = (x, y, a, text, size = 11) => `<text transform="translate(${x},${y}) rotate(${a})" text-anchor="middle" dominant-baseline="middle" font-size="${size}" font-weight="700">${text}</text>`;
+  OCC.forEach((o, k) => { const p = SPOT[o.own]?.plate, e = $('pt-' + k); if (p && e && WHO[o.own] && WHO[o.own].kind !== 'human') e.innerHTML = plateText(p[0], p[1], p[2], WHO[o.own].name); });
   $('bg').innerHTML =
-    Object.entries(SPOT).filter(([id]) => WHO[id]?.kind !== 'human').map(([id, s]) => { const [x, y, a, draw] = s.plate;
-      return (draw ? `<rect transform="translate(${x},${y}) rotate(${a})" x="-31" y="-10" width="62" height="20" rx="3" fill="#f3e3c3" stroke="#8a5a2b" stroke-width="3"/>` : '') + plateText(x, y, a, id === 'crab' && MEETING ? G('會議室', 'Meeting') : WHO[id].name, id === 'boss' ? 8 : 11); }).join('') +
+    Object.entries(SPOT).filter(([id]) => WHO[id]?.kind !== 'human' && !OCC.some(o => o.own === id)).map(([id, s]) => { const [x, y, a, draw] = s.plate;
+      return (draw ? `<rect transform="translate(${x},${y}) rotate(${a})" x="-31" y="-10" width="62" height="20" rx="3" fill="#f3e3c3" stroke="#8a5a2b" stroke-width="3"/>` : '') + plateText(x, y, a, id === 'crab' && MEETING ? G('會議室', 'Meeting') : WHO[id].name, id === 'boss' || id === 'crab' ? 8 : 11); }).join('') +
     API.map(a => { const s = api[a.k] || {};
       return (s.balance != null ? `<rect x="${a.plate[0] - 22}" y="${a.plate[1] - 9}" width="44" height="18" rx="9" fill="#fff8ec" ${INK} stroke-width="2"/>` + plateText(a.plate[0], a.plate[1] + 1, 0, s.balance, 11) : '') +
         (s.state === 'send' ? `<circle r="6" fill="${a.color}" ${INK} stroke-width="2"><animateMotion dur="1.4s" repeatCount="indefinite" path="${a.path}"/></circle>` : '') +
@@ -788,9 +790,9 @@ function place(id, state, w) {
   // 離開時先下來站到 door[0] 再走。沒有人會踩在椅子或沙發上走路（設計者：應該下椅子、走在地板上，每個人都一樣）
   const sp = SPOT[id], [sx, sy] = sp.seat, mine = {key: id, node: sp.node, door: sp.door, sit: true};
   if (w.launch) return {x: 972, y: 684, key: 'boss-launch', node: 'RL', door: [], sit: false};  // 去發射台點火
-  if (w.ponder) return {x: 158, y: 238, key: 'boss-window', node: 'CL', door: [[184,232]], sit: true};
+  if (w.ponder) return {x: 158, y: 238, key: 'boss-window', node: 'CL', door: [[157,250]], sit: true};
   if (w.sofa) return {x: 372, y: 200, key: 'boss-sofa', node: 'CR', door: [[350,238]], sit: true};  // 設計者辦公室裡的粉色沙發
-  if (id === 'boss' && (w.queue || 0) >= 3) return {x: 184, y: 232, key: 'boss-stand', node: 'CL', door: []};  // 被公文嚇到：站在桌子旁邊
+  if (id === 'boss' && (w.queue || 0) >= 3) return {x: 157, y: 250, key: 'boss-stand', node: 'CL', door: []};  // 被公文嚇到：站在桌子旁邊
   if ((state === 'fail' || state === 'ghost') && id !== 'boss') return {x: sp.door[0][0], y: sp.door[0][1], ...mine, sit: false, door: sp.door.slice(1), via: []};
   if (w.host) {  // 有人來找：起身站到地板上跟他面對面
     if (ROOMPAIR && ROOMPAIR[1] === id) return {x: MEET_B[0], y: MEET_B[1], key: 'meet-room-b', node: 'G', door: [[800,575], [765,600]]};  // 會議室：走進玻璃屋開會
@@ -834,7 +836,6 @@ const OCC = [  // 新底圖 C1。own＝這是誰的桌子：他自己坐著時�
   {name: '咖啡吧檯', cut: 1,   poly: [[528,392],[548,356],[606,352],[684,440],[684,498],[664,500],[528,432]], base: [530,430,682,496]},
   {name: '腳架展示檯', cut: 1, poly: [[460,446],[468,398],[560,400],[602,548],[602,552],[570,552],[460,504]], base: [464,500,600,550]},  // 底圖 N5：左端截短，讓出落地燈和展示檯之間的走道（設計者 2026-11-13）
   {name: '相機展示檯', cut: 1, poly: [[480,585],[494,548],[640,560],[698,650],[698,706],[680,708],[480,628]], base: [482,626,696,704]},
-  {name: '落地燈', cut: 1,     poly: [[400,480],[440,480],[440,524],[426,526],[426,572],[438,580],[438,592],[402,592],[402,580],[414,572],[414,526],[400,524]], base: [402,588,438,588]},
   {name: '按摩椅', cut: 1,     poly: [[312,640],[375,588],[418,600],[418,668],[388,700],[350,712],[312,690]], base: [312,696,418,668], skip: 'massage'},
 ];
 // 每間辦公室出口的小矮門：a＝門軸、b＝門的另一端（貼地的兩點），有人走近就打開（設計者：出口空隙太小，做個門、要會開）
@@ -978,7 +979,7 @@ const agoText = s => t('ago', s);
 const mug = (id, pose, cls = '') => { const o = id === 'boss' ? SPR.boss?.[7] : pose === 'sit' ? (SIT[id]?.[0] || SPR[id]?.[0]) : SPR[id]?.[pose]; return o ? `<img class="${cls}" src="${o.url}" alt="">` : ''; };
 let hlSig = '';
 // 回放鏡頭：依紀錄把那一幕重新擺出來（不是錄影）。回傳鏡頭框 box、起點 from、終點 to、畫面 svg(進度 0~1)
-const BGIMG = `<image href="art/office_bg_N6.jpg" width="1376" height="768"/><image href="art/glass_room_C2.jpg" x="676" y="350" width="340" height="304" clip-path="url(#glassclip)"/>`;
+const BGIMG = `<image href="art/office_bg_N7.jpg" width="1376" height="768"/><image href="art/glass_room_C2.jpg" x="676" y="350" width="340" height="304" clip-path="url(#glassclip)"/>`;
 const GDOOR_AT = [768,592], GDOOR = '<path d="M744,491.7 L788,468.8 L788,558.9 L744,581.7 Z" fill="#d8f1ff" opacity=".45"/><path d="M744,491.7 L788,468.8 L788,558.9 L744,581.7 Z" stroke="#5f7f96" stroke-width="3.5" fill="none" stroke-linejoin="round"/><path d="M744,491.7 L788,468.8 L788,558.9 L744,581.7 Z" stroke="#c3e1f0" stroke-width="1.6" fill="none" stroke-linejoin="round"/><rect x="780" y="512.4" width="5" height="11" rx="1" fill="#e9eef2" stroke="#4b5b66" stroke-width="1"/><image href="art/glass_room_C2.jpg" x="676" y="350" width="340" height="304" clip-path="url(#signclip)"/>';  // 玻璃門：門口位置、開著的門板（底圖 C2 的門已擦掉，門全部用程式畫，跟牆一樣斜）
 const GJAMB = '<path d="M741,489 L741,581 M793,518.2 L793,610.2 M739,487.9 L795,519.3" stroke="#5f7f96" stroke-width="5.5" fill="none" stroke-linecap="square"/><path d="M741,489 L741,581 M793,518.2 L793,610.2 M739,487.9 L795,519.3" stroke="#c3e1f0" stroke-width="3" fill="none" stroke-linecap="square"/>', GPANEL = '<g class="gpanel"><path d="M745,494.2 L789,519 L789,607 L745,582.2 Z" fill="#d8f1ff" opacity=".3"/><path d="M745,494.2 L789,519 L789,607 L745,582.2 Z" stroke="#5f7f96" stroke-width="3.5" fill="none" stroke-linejoin="round"/><path d="M745,494.2 L789,519 L789,607 L745,582.2 Z" stroke="#c3e1f0" stroke-width="1.6" fill="none" stroke-linejoin="round"/><rect x="779" y="552" width="5" height="11" rx="1" fill="#e9eef2" stroke="#4b5b66" stroke-width="1"/></g>';  // 玻璃門的門框與門板框不透明，要壓在屋內的人前面（設計者 2026-11-13）
 const GLASSFACE = `<path d="M696,440 L849,516 L849,642 L696,556 Z M741,489 L793,518.2 L793,610.2 L741,581 Z" fill="#d8f1ff" opacity=".3" fill-rule="evenodd"/><polygon points="849,516 1007,440 1007,560 849,642" fill="#d8f1ff" opacity=".24"/>${GJAMB}${GPANEL}<path d="M696,440 L849,516 L1007,440 M849,516 L849,642 M696,440 L696,556 L849,642 L1007,560 L1007,440" stroke="#a9dbf0" stroke-width="3.5" fill="none"/>`;
@@ -1048,7 +1049,7 @@ function shotOf(e) {
     return OCC.map((o, k) => { const [x1, y1, x2, y2] = o.base, xs = o.poly.map(q => q[0]), lo = Math.min(...xs) - 26, hi = Math.max(...xs) + 26;
       const lineY = c => y1 + (y2 - y1) * Math.min(1, Math.max(0, (c.x - x1) / ((x2 - x1) || 1))), inX = c => c.x > lo && c.x < hi;
       const behind = cs.some(c => c.id !== 'crab' && inX(c) && c.y < lineY(c) && !(c.sit && o.own === c.id)), front = cs.some(c => inX(c) && c.y >= lineY(c));
-      const el = behind && !front && $('o-' + k); return el ? el.outerHTML.replace(/ id="[^"]*"/, '') : ''; }).join(''); };
+      const el = behind && !front && $('o-' + k); return el ? el.outerHTML.replace(/ id="[^"]*"/g, '') : ''; }).join(''); };
   return {from, to, box, focus, way, total, along, svg: p => { const pos = along(p);
     const dOpen = a === 'crab' ? !!b && b !== 'boss' : Math.hypot(pos[0] - GDOOR_AT[0], pos[1] - GDOOR_AT[1]) < 72;  // 螃蟹 叫人：被叫的人站在門口，門開著
     return BGIMG + (dOpen ? GDOOR : '') + (dOpen ? parts(p, pos).split(GPANEL).join('') : parts(p, pos)) + occlude(pos) + (p >= 1 && extra.length && !extra[0].sit && a !== 'crab' ? sayBox(extra[0].x + 64, extra[0].y - 52, bubble) : p >= 1 ? sayBox(pos[0], pos[1] - (to === from && !(b && b !== 'boss') && e.type !== 'ko' && e.type !== 'fail' && e.type !== 'ghost' && e.type !== 'in' && e.type !== 'out' ? 94 : 106) * (scaleOf(a) / .7) * .78, bubble) : ''); }};
@@ -1265,7 +1266,7 @@ $('world').insertAdjacentHTML('beforebegin', '<g id="rockets" style="pointer-eve
 $('world').insertAdjacentHTML('beforebegin', '<g id="seats">' + Object.keys(SEAT).map(id => seatImg(id, true)).join('') + ['open', 'think'].map(k => `<image id="win-${k}" style="display:none" href="art/win_${k}.jpg" x="30" y="70" width="231" height="308" mask="url(#winmask)"/>`).join('') + '</g>');
 $('world').insertAdjacentHTML('afterend', '<g id="seats2">' + Object.keys(SEAT).map(id => seatImg(id, true, true)).join('') + '</g>');
 $('gdoor').innerHTML = GDOOR;
-$('world').insertAdjacentHTML('afterbegin', OCC.map((o, k) => `<image id="o-${k}" href="art/office_bg_N6.jpg" width="1376" height="768" clip-path="url(#occ${k})" style="pointer-events:none"/>`).join('')
+$('world').insertAdjacentHTML('afterbegin', OCC.map((o, k) => `<g id="o-${k}" style="pointer-events:none"><image id="oi-${k}" href="art/office_bg_N7.jpg" width="1376" height="768" clip-path="url(#occ${k})" style="pointer-events:none"/><g id="pt-${k}"></g></g>`).join('')
   + DOORS.map((d, k) => `<g id="d-${k}" style="pointer-events:none"></g>`).join('')
   // 玻璃間朝觀眾的兩面玻璃：畫在 螃蟹 上面，他才是「關在玻璃裡」；站在玻璃外面的人則畫在玻璃前面
   + '<g id="g-face" style="pointer-events:none"><path d="M696,440 L849,516 L849,642 L696,556 Z M741,489 L793,518.2 L793,610.2 L741,581 Z" fill="#d8f1ff" opacity=".3" fill-rule="evenodd"/><polygon points="849,516 1007,440 1007,560 849,642" fill="#d8f1ff" opacity=".24"/>' + GJAMB + GPANEL
@@ -1274,7 +1275,7 @@ $('world').insertAdjacentHTML('afterbegin', OCC.map((o, k) => `<image id="o-${k}
 // 家具的遮蔽圖照實際形狀摳：範圍內不是地板顏色的像素才算家具。
 // 只用多邊形裁會把家具上方的空氣也算進去，角色走到後面會被一條直線切掉（設計者：我該被物品擋到，不是被裁切）
 (async () => {
-  const bmp = await createImageBitmap(await (await fetch('art/office_bg_N6.jpg')).blob());
+  const bmp = await createImageBitmap(await (await fetch('art/office_bg_N7.jpg')).blob());
   const c = Object.assign(document.createElement('canvas'), {width: bmp.width, height: bmp.height}), x = c.getContext('2d', {willReadFrequently: true});
   x.drawImage(bmp, 0, 0);
   const floorLike = (r, g, b) => (r >= 176 && b <= 52 && g >= 78 && g <= 142) || (r >= 235 && g >= 150 && b >= 60 && b <= 120 && r - b > 120);  // 木地板的橘色與亮面反光
@@ -1289,7 +1290,7 @@ $('world').insertAdjacentHTML('afterbegin', OCC.map((o, k) => `<image id="o-${k}
       if (!inside(x0 + xx + .5, y0 + yy + .5) || floorLike(d.data[i], d.data[i + 1], d.data[i + 2])) d.data[i + 3] = 0; }
     const oc = Object.assign(document.createElement('canvas'), {width: w, height: h});
     oc.getContext('2d').putImageData(d, 0, 0);
-    const e = $('o-' + k);
+    const e = $('oi-' + k);
     e.removeAttribute('clip-path'); e.setAttribute('href', oc.toDataURL()); e.setAttribute('x', x0); e.setAttribute('y', y0); e.setAttribute('width', w); e.setAttribute('height', h);
   });
 })();
